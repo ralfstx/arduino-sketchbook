@@ -1,7 +1,6 @@
 /*
 
-  Example for controlling a blue/orange 0.96" I2C 128X64 OLED LCD display,
-  remote controlled via USB
+  Example for controlling a white 1.3" SPI 128X64 OLED LCD display
 
   Using Universal 8bit Graphics Library, http://code.google.com/p/u8glib/
 
@@ -29,37 +28,40 @@
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+  -----------------------------------------------------------------------------------------
 
-/*
+  Wiring
+  ------
 
-  Wiring:
+  The display has 6 pins, connected to the Arduino Pro Mini like this:
 
-  The display has 4 pins, connected to the Arduino Micro like this:
+  LCD       Pro Mini
 
-  LCD       Micro
-
+  VCC  -->  3.3V
   GND  -->  GND
-  VCC  -->  5V
-  SCL  -->  3 (SCL)
-  SDA  -->  2 (SDA)
+  CLK  -->  13 (SCK)
+  MOSI -->  11 (MOSI)
+  CS   -->  9
+  D/C  -->  8
 
+  Controlling
+  -----------
+
+  The display can be controlled via terminal with the following command set:
+
+  HEAD <text> Sets the text for the headline.
+  LIN<n> <text> Sets the text for line n. n = [1..3])
+  PROG <n> - Sets the progress bar. n = [0..100]
+  STAT <n> - Sets the status n = 0: off, 1: play, 2: pause
+  REFR - Refreshes the display.
  */
 
-/*
-
-  Usage:
-
-  In the Arduino IDE, Start the Serial Monitor (Tools > Serial Monitor), set it to
-  "Newline" and "9600 baud".
-  Enter commands:
-    HEAD Hello World!
-    REFR
-*/
+#define CS_PIN 9
+#define A0_PIN 8
 
 #include "U8glib.h"
 
-U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NO_ACK);
+U8GLIB_SSD1306_128X64 u8g(CS_PIN, A0_PIN);
 
 const uint8_t PLAY_BITMAP[] U8G_PROGMEM = {
   0x80, // 10000000
@@ -202,8 +204,21 @@ void readSerial() {
   }
 }
 
+//void readButtons() {
+//  int actual = digitalRead(buttonPin);
+//  if (actual != buttonState) {
+//    buttonState = actual;
+//    if (actual && (millis() - lastDebounceTime) > debounceDelay) {
+//      Serial.println("button");
+//    }
+//    lastDebounceTime = millis();
+//  }
+//}
+
 void setup(void) {
   u8g.setColorIndex(1);
+  setLine(line1, "Loading", 10);
+  refresh();
   Serial.begin(9600);
 }
 
