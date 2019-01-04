@@ -1,37 +1,11 @@
 /*
 
-  Example for controlling a blue/orange 0.96" I2C 128X64 OLED LCD display,
-  remote controlled via USB
+  Controlling the orange/blue 0.96" I2C 128X64 OLED LCD display (5V)
+  (upper 16 pixel are orange, the lower part is blue)
+
+  Arduino Micro, remote controlled via USB
 
   Using Universal 8bit Graphics Library, http://code.google.com/p/u8glib/
-
-  Redistribution and use in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
-
-  * Redistributions of source code must retain the above copyright notice, this list
-    of conditions and the following disclaimer.
-
-  * Redistributions in binary form must reproduce the above copyright notice, this
-    list of conditions and the following disclaimer in the documentation and/or other
-    materials provided with the distribution.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-*/
-
-/*
 
   Wiring:
 
@@ -43,10 +17,6 @@
   VCC  -->  5V
   SCL  -->  3 (SCL)
   SDA  -->  2 (SDA)
-
- */
-
-/*
 
   Usage:
 
@@ -111,7 +81,7 @@ void drawStatus() {
 }
 
 void drawProgress() {
-  int x = 0, y = 16;
+  int x = 0, y = 62;
   u8g.drawBox(x, y, progress * 128 / 100, 2);
 }
 
@@ -122,7 +92,7 @@ void drawHead() {
 }
 
 void drawLine(char *line, int n) {
-  int x = 0, y = 19;
+  int x = 0, y = 16;
   u8g.setFont(u8g_font_7x13);
   u8g.drawStr(x, y + n * 14, line);
 }
@@ -184,6 +154,7 @@ void processSerialCmd(char *line) {
     setInt(&progress, arg, 0, 100);
   } else if (strcmp("REFR", cmd) == 0) {
     refresh();
+    Serial.println("OK");
   } else {
     Serial.println("ERROR: Invalid command");
   }
@@ -204,6 +175,7 @@ void readSerial() {
 
 void setup(void) {
   u8g.setColorIndex(1);
+  refresh();
   Serial.begin(9600);
 }
 
@@ -211,4 +183,3 @@ void loop(void) {
   readSerial();
   delay(50);
 }
-

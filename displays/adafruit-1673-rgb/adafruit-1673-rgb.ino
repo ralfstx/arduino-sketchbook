@@ -64,31 +64,74 @@
 #include <Adafruit_SSD1351.h>
 #include <SPI.h>
 
+#define PROG_BAR_HEIGHT 3
+
 // use the hardware SPI pins
 Adafruit_SSD1351 tft = Adafruit_SSD1351(CS_PIN, DC_PIN, RST_PIN);
+
+int width = tft.width();
+int height = tft.height();
+int progress = 0;
 
 void setup(void) {
   tft.begin();
   tft.fillScreen(BLACK);
-  drawShape();
   drawText();
+  drawShape();
+  drawColors();
 }
 
 void loop() {
+  progress = (progress + 2) % 101;
+  drawProgress(progress);
+  delay(200);
+}
+
+void drawText() {
+  tft.setTextColor(RED, BLACK);
+  tft.setTextSize(1);
+  tft.setTextWrap(false);
+  tft.setCursor(2, 2);
+  tft.println("It works!");
 }
 
 void drawShape() {
-  int cx = tft.width() / 2;
-  int cy = tft.height() / 2;
+  int cx = width / 2;
+  int cy = height / 2;
   tft.fillCircle(cx, cy, 15, BLUE);
   tft.drawFastHLine(cx - 20, cy - 1, 41, YELLOW);
   tft.drawFastHLine(cx - 20, cy + 1, 41, YELLOW);
 }
 
-void drawText() {
-  tft.setTextColor(RED);
-  tft.setTextSize(2);
-  tft.setCursor(10, 5);
-  tft.println("It works!");
+void drawColors() {
+  int y = height - 20;
+  int x, c;
+  for (int i = 0; i < 10; i++) {
+    x = 7 * i;
+    c = i * 3;
+    tft.fillRect(x, y, 5, 5, c);
+  }
+  y += 7;
+  for (int i = 0; i < 10; i++) {
+    x = 7 * i;
+    c = (i * 6) << 5;
+    tft.fillRect(x, y, 5, 5, c);
+  }
+}
+
+//int col(r, g, b) {
+//  return (r << 11) + (g << 5) + b;
+//}
+
+int currPWidth = 0;
+
+void drawProgress(int progress) {
+  int newPWidth = progress * width / 100;
+  if (newPWidth < currPWidth) {
+    tft.fillRect(newPWidth, height - PROG_BAR_HEIGHT, currPWidth - newPWidth, PROG_BAR_HEIGHT, BLACK);
+  } else if (newPWidth > currPWidth) {
+    tft.fillRect(currPWidth, height - PROG_BAR_HEIGHT, newPWidth - currPWidth, PROG_BAR_HEIGHT, GREEN);
+  }
+  currPWidth = newPWidth;
 }
 
